@@ -80,7 +80,7 @@ ui <- list(
                     br(),
                     br(),
                     h2("Acknowledgements"),
-                    p("This app was developed and coded by Yuxin Zhang and updated by Luxin Wang and Thomas McIntyre.")
+                    p("This app was developed and coded by Yuxin Zhang and updated by Luxin Wang, Thomas McIntyre and Chenese Gray.")
                 ),
                         #Adding pre-requisites page to remove background from instructions page
                 tabItem(
