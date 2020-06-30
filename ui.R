@@ -96,7 +96,7 @@ ui <- list(
                                 (e.g., how many people prefer Meyer Dairy over Berkey Creamery), 
                                 our measurements might vary."),
                         
-                        tags$li(strong('Bias'), "refers to the degree by which a measurement target 
+                        tags$li(strong('Bias'), "refers to the degree by which a measurement  
                                 systematically misses the true value of what you're measuring. 
                                 If the true value is the bull's eye of a target, how might 
                                 high and low values of bias impact where you hit the target?"),
