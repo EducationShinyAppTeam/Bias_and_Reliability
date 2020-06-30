@@ -226,13 +226,13 @@ ui <- list(
                     h2("References"),
                     p(
                       class = "hangingindent",
-                      "Dean Attali (2020). shinyjs: Easily Improve the User 
+                      "Attali, D. (2020). shinyjs: Easily Improve the User 
                       Experience of Your Shiny Apps in Seconds. R package 
                       version 1.1. Available from https://CRAN.R-project.org/package=shinyjs"
                     ),
                     p(
                       class = "hangingindent",
-                      "Eric Bailey (2015). shinyBS: Twitter Bootstrap Components
+                      "Bailey, E. (2015). shinyBS: Twitter Bootstrap Components
                       for Shiny. R package version 0.61. Available from
                       https://CRAN.R-project.org/package=shinyBS"
                     ),
@@ -244,38 +244,34 @@ ui <- list(
                     ),
                     p(
                       class = "hangingindent",
-                      "Robert Carey and Neil Hatfield (2020). boastUtils: BOAST Utilities. 
+                      "Carey, R. and Hatfield, N. (2020). boastUtils: BOAST Utilities. 
                       R package version 0.1.4. Available from
                       https://github.com/EducationShinyAppTeam/boastUtils"
                     ),
                     p(
                       class = "hangingindent",
-                      "Simon Urbanek (2013). png: Read and write PNG images. 
+                      "Urbanek, S. (2013). png: Read and write PNG images. 
                       R package version 0.1-7. Available from https://CRAN.R-project.org/package=png"
                     ),
                     p(
                       class = "hangingindent",
-                      "Victor Perrier, Fanny Meyer and David Granjon (2020). shinyWidgets: 
+                      "Perrier, V., Meyer, F., and Granjon, D. (2020). shinyWidgets: 
                       Custom Inputs Widgets for Shiny. R package version 0.5.2. Available from
                       https://CRAN.R-project.org/package=shinyWidgets"
                     ),
                     p(
                       class = "hangingindent",
-                      "Winston Chang and Barbara Borges Ribeiro (2018). shinydashboard: 
+                      "Chang, W. and Borges Ribeiro, B. (2018). shinydashboard: 
                       Create Dashboards with 'Shiny'. R package version 0.7.1. Available from
                       https://CRAN.R-project.org/package=shinydashboard"
                     ),
                     p(
                       class = "hangingindent",
-                      "Winston Chang, Joe Cheng, JJ Allaire, Yihui Xie and Jonathan 
-                      McPherson (2020). shiny: Web Application Framework for R. R 
+                      "Chang, W., Cheng, J., Allaire, J., Xie, Y., and 
+                      McPherson, J. (2020). shiny: Web Application Framework for R. R 
                       package version 1.4.0.2. Available from 
                       https://CRAN.R-project.org/package=shiny"
-                    ),
-                    br(),
-                    br(),
-                    br(),
-                    boastUtils::copyrightInfo()
+                    )
                     
                 )
             )
