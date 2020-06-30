@@ -6,21 +6,9 @@ library(V8)
 library(shinydashboard)
 library(shinyWidgets)
 
-
-
 ##BIAS app
 
-
-#Use jscode to for reset button to reload the app
-jsResetCode <- "shinyjs.reset = function() {history.go(0)}"
-
 #Define the function to disable all the button
-disableActionButton <- function(id,session) {
-  session$sendCustomMessage(type="jsCode",
-                            list(code= paste("$('#",id,"').prop('disabled',true)"
-                                             ,sep="")))
-}
-
 
 shinyServer(function(input, output,session) {
   
@@ -35,13 +23,12 @@ shinyServer(function(input, output,session) {
   
   ###UPDATE: adding the go button 
   observeEvent(input$go,{
-    updateTabItems(session,"tabs","game")
+    updateTabItems(session,"tabs","prerequisites")
   })
   
   observeEvent(input$start,{
-    updateTabItems(session,"tabs","instruction")
+    updateTabItems(session,"tabs","challenge")
   })
-  
   
   #Create reactiveValues to restore the coordinates of clicked points and the calculated bias and reliability
   var <- reactiveValues(x = NULL, y = NULL, bias = NULL, reliability = NULL)
@@ -63,28 +50,24 @@ shinyServer(function(input, output,session) {
   observeEvent(input$clear,{
     index$index <- ta$ta
   })
-  
-  
-  
-  
-  
+
   output$question <- renderUI({
     validate(
       need(index$index != "", "You have exhausted our question bank! Please refresh the page!")
     )
     if (index$index == 1){
-      h3("Can you create a model for large bias and low reliability?  Please put on at least 10 dots.")
+      p("Create a model for large bias and low reliability?  Please put on at least 10 dots.")
     }else if (index$index == 2){
-      h3("Can you create a model for large bias and high reliability?  Please put on at least 10 dots.")
+      p("Create a model for large bias and high reliability?  Please put on at least 10 dots.")
     }else if (index$index == 3){
-      h3("Can you create a model for no bias and low reliability?  Please put on at least 10 dots.")
+      p("Create a model for no bias and low reliability?  Please put on at least 10 dots.")
     }else if (index$index == 4){
-      h3("Can you create a model for no bias and high reliability? (Please put down at least 10 dots.)")
+      p("Create a model for no bias and high reliability? (Please put down at least 10 dots.)")
     }
   })
   
   #Create function for ploting the target  
-  plotTarget = function(x,y){
+  plotTarget <- function(x,y){
     #Get image
     isolate(ima <- readPNG("t6.png"))
     
@@ -95,21 +78,19 @@ shinyServer(function(input, output,session) {
     isolate(lim <- par())
     isolate(rasterImage(ima, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4]))
     isolate(grid())
-    lines(x,y, xlim = c(-5,5), ylim = c(-5,5),type = 'p', pch = 20)
+    lines(x,y, xlim = c(-5,5), ylim = c(-5,5),type = 'p', pch = 19)
   }
-  
   #Create function for ploting the bias plot  
-  plotA = function(x,y){
-    plot(x = -3:3,xlim = c(-6,6), type = "n", xlab = "", ylab = "", main = "Bias",yaxt = 'n')
+  plotA <- function(x,y){
+    plot(x = -3:3,xlim = c(-6,6), type = "n", xlab = "", ylab = "", main = "Bias",yaxt = 'n', cex.main = 1.25, cex.axis = 1.25, cex.lab = 1.25)
     box(col = "red")
     abline(v=0,col = "red")
     abline(v = sqrt(mean(x)^2 + mean(y)^2))
   }
-  
   #Create function for ploting the reliability plot  
-  plotB = function(x,y){
+  plotB <- function(x,y){
     #Density plot of the distance between each dots
-    plot(density(dist(cbind(x,y))),xlim = c(-2,12),xlab = "", main = "Reliability")
+    plot(density(dist(cbind(x,y))),xlim = c(-2,12),xlab = "", main = "Reliability", cex.main = 1.25, cex.axis = 1.25, cex.lab = 1.25)
     abline(v = mean(dist(cbind(x,y))))
     box(col = "red")
   }
@@ -151,9 +132,7 @@ shinyServer(function(input, output,session) {
       var$y <- NULL
     }
   })
-  
-  
-  
+ 
   ##Set the related relationship between three buttons: "submit" "clear" "next"  
   observe({
     if (length(var$x) == 1){
@@ -176,8 +155,7 @@ shinyServer(function(input, output,session) {
   observeEvent(input$clear,{
     updateButton(session, "new",disabled = TRUE)
   })
-  
-  
+ 
   #The "next" button will be enabled once the user hits submit. 
   observe(priority = 1,{
     if (input$submit== FALSE){
@@ -191,7 +169,6 @@ shinyServer(function(input, output,session) {
       updateButton(session,"new", label="Next>>", disabled = TRUE)
     }
   })
-  
   ##Plot three outputs using the functions defined before  
   output$target <- renderPlot({
     plotTarget(var$x,var$y)
@@ -204,8 +181,6 @@ shinyServer(function(input, output,session) {
   output$plotb <- renderPlot({
     plotB(var$x,var$y)
   },height = 320, width = 320)
-  
-  
   observe({
     if (input$submit == TRUE){
       #Distance between the center of target(population) and the center of the cloud of dots(ave. of samples)
@@ -230,42 +205,41 @@ shinyServer(function(input, output,session) {
     #For each question, there are three leveled responses.
     if (index$index == 1){
       if ((var$bias > 4) & (var$reliability > 3)){
-        print("Great! Nicely done!")
+        return("Great! Nicely done!")
       }else if ((var$bias > 3) & (var$reliability > 2.5)){
-        print("Good job!")
+        return("Good job!")
       }else{
-        print("You can do better. Try again. What could you do to get a closer answer?")
+        return("You can do better. Try again. What could you do to get a closer answer?")
       }
     }else if (index$index == 2){
       if ((var$bias > 4) & (var$reliability < 1.5)){
-        print("Great! Nicely done!")
+        return("Great! Nicely done!")
       }else if ((var$bias > 3) & (var$reliability < 2)){
-        print("Good job!")
+        return("Good job!")
       }else{
-        print("You can do better. Try again. What could you do to get a closer answer?")
+        return("You can do better. Try again. What could you do to get a closer answer?")
       }
     }else if (index$index == 3){
       if ((var$bias < 0.25) & (var$reliability > 3)){
-        print("Great! Nicely done!")
+        return("Great! Nicely done!")
       }else if ((var$bias < 0.3) & (var$reliability > 2.5)){
-        print("Good job!")
+        return("Good job!")
       }else{
-        print("You can do better. Try again. What could you do to get a closer answer?")
+        return("You can do better. Try again. What could you do to get a closer answer?")
       }
     }else if (index$index == 4){
       if ((var$bias < 0.25) & (var$reliability < 1.5)){
-        print("Great! Nicely done!")
+        return("Great! Nicely done!")
       }else if ((var$bias < 0.3) & (var$reliability < 2)){
-        print("Good job!")
+        return("Good job!")
       }else{
-        print("You can do better. Try again. What could you do to get a closer answer?")
+        return("You can do better. Try again. What could you do to get a closer answer?")
       }
     }
   })
-  
-  
-  
+ 
   ##Print feedbacks.  
+  
   output$feedback1 <- renderUI({
     paste("Average bias = ",round(var$bias,digits = 2),"(smaller values indicate less bias)")
   }) 
@@ -300,11 +274,7 @@ shinyServer(function(input, output,session) {
     #paste together the feedbacks and print them out.
     paste("The dots you put down are centered at the",quad,"quadrant,",signif(var$bias, 2),
           "away from the center",reliaFeedback)
-    
-    
   })
-  
-  
 })
 
 
