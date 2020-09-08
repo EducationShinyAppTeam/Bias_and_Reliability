@@ -539,7 +539,7 @@ server <- function(input, output, session) {
       reliabData <- data.frame(
         values = as.vector(dist(cbind(userPoints$DT)))
       )
-      reliabilityMetric(mean(reliabData$values))
+      reliabilityMetric(sqrt(var(userPoints$DT$x) + var(userPoints$DT$y)))
     }
     output$reliabilityPlot <- renderPlot({
       validate(
@@ -569,8 +569,9 @@ server <- function(input, output, session) {
     })
     ### Reliability Feedback ----
     output$reliabilityFeedback <- renderUI({
-      paste0("Your estimated reliability is ", round(reliabilityMetric(), 3),
-             ". Note: smaller indicates higher reliability.")
+      paste0("Your estimated reliability (standard distance) is ",
+             round(reliabilityMetric(), 3),
+             ". Note: smaller values indicates higher reliability.")
     })
 
     ### Description of Student's Plot ----
