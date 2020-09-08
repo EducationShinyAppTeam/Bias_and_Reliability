@@ -392,6 +392,14 @@ server <- function(input, output, session) {
     x = numeric(),
     y = numeric()
   )
+  
+  getQuestionContext <- function() {
+    context <- paste("Create a process which has",
+                     questionBank[contexts()[counter()], "bias"], "bias and",
+                     questionBank[contexts()[counter()], "reliability"], "reliability.")
+    
+    return(context)
+  }
 
   ## Info button ----
   observeEvent(input$info,{
@@ -438,9 +446,7 @@ server <- function(input, output, session) {
       })
     }
     output$challenge <- renderUI({
-      paste("Create a process which has",
-            questionBank[contexts()[counter()], "bias"], "bias and",
-            questionBank[contexts()[counter()], "reliability"], "reliability.")
+      getQuestionContext()
     })
 
   })
@@ -451,6 +457,19 @@ server <- function(input, output, session) {
       x = input$userClick$x,
       y = input$userClick$y
     )
+    
+    coords <- jsonlite::toJSON(newRow) 
+    
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = "answered",
+      object = "inputPlot",
+      description = getQuestionContext(),
+      interactionType = "performance",
+      response = coords
+    )
+    
+    boastUtils::storeStatement(session, stmt)
 
     userPoints$DT <- rbind(userPoints$DT, newRow)
   })
@@ -647,41 +666,59 @@ server <- function(input, output, session) {
       type = questionBank[contexts()[counter()], "reliabilityComp"],
       target = questionBank[contexts()[counter()], "reliabilityLimit"]
     )
+    
+    feedback <- ""
+    
     if(biasCheck && reliabilityCheck){
       output$gradingIcon <- boastUtils::renderIcon("correct")
-      output$gradeMessage <- renderUI({
-        paste("Congrats! You succeeded in the current challenge. Check out the
+      feedback <- paste("Congrats! You succeeded in the current challenge. Check out the
               feedback below to see just how well you did. Then try the next
               challenge.")
-      })
     } else if (biasCheck && !reliabilityCheck) {
       output$gradingIcon <- boastUtils::renderIcon("partial")
-      output$gradeMessage <- renderUI({
-        paste("You are correct with your Bias, but not Reliability.
+      feedback <- paste("You are correct with your Bias, but not Reliability.
               Please look at the feedback below to see how you can improve and
               then reattempt this challenge.")
-      })
     } else if (!biasCheck && reliabilityCheck) {
       output$gradingIcon <- boastUtils::renderIcon("partial")
-      output$gradeMessage <- renderUI({
-        paste("You are correct with your Reliability, but not Bias.
+      feedback <- paste("You are correct with your Reliability, but not Bias.
               Please look at the feedback below to see how you can improve and
               then reattempt this challenge.")
-      })
     } else {
       output$gradingIcon <- boastUtils::renderIcon("incorrect")
-      output$gradeMessage <- renderUI({
-        paste("You're not quite correct in both dimensions. Please look at the
+      feedback <- paste("You're not quite correct in both dimensions. Please look at the
               feedback below to see how to improve and then reattempt this
               challenge.")
-      })
     }
+    
+    output$gradeMessage <- renderUI({
+      feedback
+    })
+    
+    ## Store Results ----
+    response <- jsonlite::toJSON(
+      list(
+        bias = round(biasMetric(), 3),
+        reliability = round(reliabilityMetric(), 3)
+      ),
+      auto_unbox = TRUE
+    )
+    
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = "scored",
+      object = "shiny-tab-challenge",
+      description = gsub("\\s+", " ", feedback),
+      success = biasCheck && reliabilityCheck,
+      response = response
+    )
+    
+    boastUtils::storeStatement(session, stmt)
   })
 
   ## Grading Icons ----
   observeEvent(input$submit, {
-
-
+    
   })
 
   ## Reattempt Button ----
@@ -733,12 +770,34 @@ server <- function(input, output, session) {
     )
     if(counter() < nrow(questionBank)) {
       counter(counter() + 1)
+      
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "progressed",
+        object = "shiny-tab-challenge",
+        description = getQuestionContext(),
+        response = paste("Stage", counter())
+      )
+      
+      boastUtils::storeStatement(session, stmt)
     } else {
+      msg <- "You have completed all of the challenges. Please refresh the app
+        to start again."
+      
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "completed",
+        object = "shiny-tab-challenge",
+        description = gsub("\\s+", " ", msg),
+        completion = TRUE
+      )
+      
+      boastUtils::storeStatement(session, stmt)
+      
       sendSweetAlert(
         session = session,
         title = "Out of Challenges",
-        text = "You have completed all of the challenges. Please refresh the app
-        to start again.",
+        text = msg,
         type = "error"
       )
     }
