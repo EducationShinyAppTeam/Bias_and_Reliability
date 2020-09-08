@@ -1,0 +1,5 @@
+bias,reliability,biasLimit,biasComp,reliabilityLimit,reliabilityComp
+large,low,3,greater,2.5,greater
+large,high,3,greater,2,lower
+no,low,0.3,lower,2.5,greater
+no,high,0.3,lower,2,lower
