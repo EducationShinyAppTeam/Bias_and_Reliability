@@ -424,24 +424,23 @@ server <- function(input, output, session) {
     if(input$tabs == "challenge" && !(activeGame())) {
       contexts(sample(1:nrow(questionBank), size = nrow(questionBank)))
       activeGame(TRUE)
+      output$biasPlot <- renderPlot({
+        return(defaultBiasPlot)
+      })
+      output$biasFeedback <- renderUI({
+        paste(defaultFeedback)
+      })
+      output$reliabilityPlot <- renderPlot({
+        return(defaultReliabilityPlot)
+      })
+      output$reliabilityFeedback <- renderUI({
+        return(defaultFeedback)
+      })
     }
     output$challenge <- renderUI({
       paste("Create a process which has",
             questionBank[contexts()[counter()], "bias"], "bias and",
             questionBank[contexts()[counter()], "reliability"], "reliability.")
-    })
-
-    output$biasPlot <- renderPlot({
-      return(defaultBiasPlot)
-    })
-    output$biasFeedback <- renderUI({
-      paste(defaultFeedback)
-    })
-    output$reliabilityPlot <- renderPlot({
-      return(defaultReliabilityPlot)
-    })
-    output$reliabilityFeedback <- renderUI({
-      return(defaultFeedback)
     })
 
   })
