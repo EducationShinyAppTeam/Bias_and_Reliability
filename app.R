@@ -302,10 +302,9 @@ ui <- list(
               br(),
               p(tags$em("Note: "),
                 "The more reliable your process is, the tighter the blue shaded
-                region will be around the mean distance between estimates (as
-                shown by the red dashed line). The less reliable your process is
-                the more variation in the distance between estimates, causing the
-                blue shaded area to expand further and further from the mean distance."
+                region will be to zero (zero occurs if all of the points are
+                exactly the same). The less reliable your process is, the more
+                variation in the points making for greater distances between them."
               )
             ),
             column(
@@ -576,7 +575,7 @@ server <- function(input, output, session) {
                    color = boastUtils::psuPalette[2],
                    size = 2,
                    lty = 2) +
-        scale_x_continuous(expand = expansion(mult = c(0, 0.05), add = 0),
+        scale_x_continuous(expand = expansion(mult = c(0, 0.05), add = c(0.05, 0)),
                            limits = c(0, NA)) +
         scale_y_continuous(expand = expansion(mult = c(0, 0.1), add = 0)) +
         theme_bw() +
