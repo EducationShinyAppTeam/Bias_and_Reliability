@@ -21,6 +21,10 @@ APP_DESCP  <<- paste(
 questionBank <- read.csv(file = "questionBank.csv",
                          header = TRUE,
                          stringsAsFactors = FALSE)
+## Cut offs for Bias and Reliability
+### No/Low Bias; High Reliability: [0, 0.3]
+### Moderate Bias; Moderate Reliability: (0.3, 1.5]
+### High Bias; Low Reliability: (1.5, inf)
 
 # Define global functions and constants ----
 comparison <- function(value, type, target, tol = 0.1) {
@@ -391,12 +395,12 @@ server <- function(input, output, session) {
     x = numeric(),
     y = numeric()
   )
-  
+
   getQuestionContext <- function() {
     context <- paste("Create a process which has",
                      questionBank[contexts()[counter()], "bias"], "bias and",
                      questionBank[contexts()[counter()], "reliability"], "reliability.")
-    
+
     return(context)
   }
 
@@ -456,9 +460,9 @@ server <- function(input, output, session) {
       x = input$userClick$x,
       y = input$userClick$y
     )
-    
-    coords <- jsonlite::toJSON(newRow) 
-    
+
+    coords <- jsonlite::toJSON(newRow)
+
     stmt <- boastUtils::generateStatement(
       session,
       verb = "answered",
@@ -467,7 +471,7 @@ server <- function(input, output, session) {
       interactionType = "performance",
       response = coords
     )
-    
+
     boastUtils::storeStatement(session, stmt)
 
     userPoints$DT <- rbind(userPoints$DT, newRow)
@@ -571,10 +575,14 @@ server <- function(input, output, session) {
         geom_density(size = 2,
                      color = boastUtils::boastPalette[8],
                      fill = boastUtils::boastPalette[8]) +
-        geom_vline(xintercept = mean(reliabData$values),
+        geom_vline(xintercept = 0,
                    color = boastUtils::psuPalette[2],
                    size = 2,
                    lty = 2) +
+        geom_vline(xintercept = mean(reliabData$values),
+                   color = "black",
+                   size = 2,
+                   lty = 1) +
         scale_x_continuous(expand = expansion(mult = c(0, 0.05), add = c(0.05, 0)),
                            limits = c(0, NA)) +
         scale_y_continuous(expand = expansion(mult = c(0, 0.1), add = 0)) +
@@ -665,9 +673,9 @@ server <- function(input, output, session) {
       type = questionBank[contexts()[counter()], "reliabilityComp"],
       target = questionBank[contexts()[counter()], "reliabilityLimit"]
     )
-    
+
     feedback <- ""
-    
+
     if(biasCheck && reliabilityCheck){
       output$gradingIcon <- boastUtils::renderIcon("correct")
       feedback <- paste("Congrats! You succeeded in the current challenge. Check out the
@@ -689,11 +697,11 @@ server <- function(input, output, session) {
               feedback below to see how to improve and then reattempt this
               challenge.")
     }
-    
+
     output$gradeMessage <- renderUI({
       feedback
     })
-    
+
     ## Store Results ----
     response <- jsonlite::toJSON(
       list(
@@ -702,7 +710,7 @@ server <- function(input, output, session) {
       ),
       auto_unbox = TRUE
     )
-    
+
     stmt <- boastUtils::generateStatement(
       session,
       verb = "scored",
@@ -711,13 +719,13 @@ server <- function(input, output, session) {
       success = biasCheck && reliabilityCheck,
       response = response
     )
-    
+
     boastUtils::storeStatement(session, stmt)
   })
 
   ## Grading Icons ----
   observeEvent(input$submit, {
-    
+
   })
 
   ## Reattempt Button ----
@@ -769,7 +777,7 @@ server <- function(input, output, session) {
     )
     if(counter() < nrow(questionBank)) {
       counter(counter() + 1)
-      
+
       stmt <- boastUtils::generateStatement(
         session,
         verb = "progressed",
@@ -777,12 +785,12 @@ server <- function(input, output, session) {
         description = getQuestionContext(),
         response = paste("Stage", counter())
       )
-      
+
       boastUtils::storeStatement(session, stmt)
     } else {
       msg <- "You have completed all of the challenges. Please refresh the app
         to start again."
-      
+
       stmt <- boastUtils::generateStatement(
         session,
         verb = "completed",
@@ -790,9 +798,9 @@ server <- function(input, output, session) {
         description = gsub("\\s+", " ", msg),
         completion = TRUE
       )
-      
+
       boastUtils::storeStatement(session, stmt)
-      
+
       sendSweetAlert(
         session = session,
         title = "Out of Challenges",
