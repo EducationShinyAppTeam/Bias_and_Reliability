@@ -1,0 +1,24 @@
+Title: Bias and Reliability
+ShortName: Bias and Reliability
+Date: 2020-09-08
+Lifecycle: maturing
+Authors@R: c(
+    person(given = "Yuxin", family = "Zhang", role = c("aut", "cre")),
+    person(given = "Luxin", family = "Wang", role = c("ctb")),
+    person(given = "Thomas", family = "McIntyre", role = c("ctb")),
+    person(given = "Chenese", family = "Grey", role = c("aut")),
+    person(given = "Neil", family = "Hatfield", email = "neil.hatfield@psu.edu", role = c("aut")),
+    person(given = "Dennis", family = "Pearl", role = c("aut"))
+  )
+Chapter: Data Gathering
+Description: The bias of a measurement describes to what degree it is systematically off target from the true value. The reliability of a measurement describes how consistent the measurement is when you repeat it. This app is designed to help with understanding those concepts.
+LearningObjectives: c(
+    "The student will learn to understand Concept A in way z.",
+    "The student will learn to understand Concept B as description y."
+  )
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Bias_and_Reliability
+BugReports: https://github.com/EducationShinyAppTeam/Bias_and_Reliability/issues
+License: CC-BY-NC-SA-4.0
+Tags: simulation
+Type: Shiny

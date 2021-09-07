@@ -7,20 +7,12 @@ library(boastUtils)
 library(ggplot2)
 library(ggforce)
 
-# App Meta Data----------------------------------------------------------------
-APP_TITLE  <<- "Bias and Reliability"
-APP_DESCP  <<- paste(
-  "The bias of a measurement describes to what degree it is systematically off
-  target from the true value. The reliability of a measurement describes how
-  consistent the measurement is when you repeat it. This app is designed to help
-  with understanding those concepts."
-)
-# End App Meta Data------------------------------------------------------------
-
 # Load Question Bank ----
-questionBank <- read.csv(file = "questionBank.csv",
-                         header = TRUE,
-                         stringsAsFactors = FALSE)
+questionBank <- read.csv(
+  file = "questionBank.csv",
+  header = TRUE,
+  stringsAsFactors = FALSE
+)
 ## Cut offs for Bias and Reliability
 ### No/Low Bias; High Reliability: [0, 0.3]
 ### Moderate Bias; Moderate Reliability: (0.3, 1.5]
@@ -28,12 +20,12 @@ questionBank <- read.csv(file = "questionBank.csv",
 
 # Define global functions and constants ----
 comparison <- function(value, type, target, tol = 0.1) {
-  if(length(value) == 0 || is.null(value) ||
+  if (length(value) == 0 || is.null(value) ||
      length(type) == 0 || is.null(type) ||
      length(target) == 0 || is.null(target)) {
     return(NULL)
   } else {
-    if(type == "greater") {
+    if (type == "greater") {
       return(ifelse(value > target - tol, TRUE, FALSE))
     } else {
       return(ifelse(value < target + tol, TRUE, FALSE))
@@ -48,8 +40,10 @@ circles <- data.frame(
   r = seq.int(from = 1, to = 4, by = 1)
 )
 
-mainPlot <- ggplot(data = circles,
-                   mapping = aes(x0 = x0, y0 = y0, r = r)) +
+mainPlot <- ggplot(
+  data = circles,
+  mapping = aes(x0 = x0, y0 = y0, r = r)
+) +
   ggforce::geom_circle(
     color = boastUtils::psuPalette[2],
     size = 3
@@ -64,30 +58,32 @@ defaultFeedback <- ""
 defaultBiasPlot <- ggplot(
   data = data.frame(values = rep(0, 10)),
   mapping = aes(x = values)) +
-  geom_vline(xintercept = 0,
-             color = boastUtils::psuPalette[2],
-             size = 2,
-             lty = 2) +
-  scale_x_continuous(expand = expansion(mult = 0, add = 1)) +
-  theme_bw() +
-  theme(
-    text = element_text(size = 16)
+  geom_vline(
+    xintercept = 0,
+    color = boastUtils::psuPalette[2],
+    size = 2,
+    lty = 2
   ) +
+  scale_x_continuous(expand = expansion(mult = 0, add = c(0.05,1))) +
+  theme_bw() +
+  theme(text = element_text(size = 16)) +
   xlab("Bias metric")
 
 defaultReliabilityPlot <- ggplot(
   data = data.frame(values = rep(0, 10)),
   mapping = aes(x = values)) +
-  geom_density(size = 2,
-               color = boastUtils::boastPalette[8],
-               fill = boastUtils::boastPalette[8]) +
-  scale_x_continuous(expand = expansion(mult = c(0, 0.05), add = 0),
-                     limits = c(0, NA)) +
+  geom_density(
+    size = 2,
+    color = boastUtils::boastPalette[8],
+    fill = boastUtils::boastPalette[8]
+  ) +
+  scale_x_continuous(
+    expand = expansion(mult = c(0, 0.05), add = 0),
+    limits = c(0, NA)
+  ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1), add = 0)) +
   theme_bw() +
-  theme(
-    text = element_text(size = 16)
-  ) +
+  theme(text = element_text(size = 16)) +
   xlab("Distance between points") +
   ylab("Density")
 
@@ -108,8 +104,12 @@ ui <- list(
       tags$li(class = "dropdown", actionLink("info", icon("info"))),
       tags$li(
         class = "dropdown",
+        boastUtils::surveyLink(name = "Bias_and_Reliability")
+      ),
+      tags$li(
+        class = "dropdown",
         tags$a(
-          href='https://shinyapps.science.psu.edu/',
+          href = 'https://shinyapps.science.psu.edu/',
           icon("home")
         )
       )
@@ -117,11 +117,12 @@ ui <- list(
     ## Sidebar ----
     dashboardSidebar(
       width = 250,
-      sidebarMenu(id='tabs',
-                  menuItem("Overview",tabName = "overview", icon = icon("tachometer-alt")),
-                  menuItem("Prerequisites", tabName= "prerequisites", icon=icon("book")),
-                  menuItem("Challenge",tabName = "challenge", icon = icon("cog")),
-                  menuItem("References", tabName = "references", icon = icon("leanpub"))
+      sidebarMenu(
+        id = 'pages',
+        menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
+        menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
+        menuItem("Challenge", tabName = "challenge", icon = icon("cog")),
+        menuItem("References", tabName = "references", icon = icon("leanpub"))
       ),
       tags$div(
         class = "sidebar-logo",
@@ -150,7 +151,7 @@ ui <- list(
                     unique challenges.)")
           ),
           div(
-            style = "text-align: center",
+            style = "text-align: center;",
             bsButton(
               inputId = "go",
               label = "Go to Prerequisites",
@@ -166,8 +167,12 @@ ui <- list(
             by Chenese Gray with additional coding changes by Neil J. Hatfield.",
             br(),
             br(),
+            "Cite this app as:",
             br(),
-            div(class = "updated", "Last Update: 9/8/2020 by NJH.")
+            boastUtils::citeApp(),
+            br(),
+            br(),
+            div(class = "updated", "Last Update: 9/7/2021 by NJH.")
           )
         ),
         tabItem(
@@ -196,7 +201,7 @@ ui <- list(
                     high reliability; high variation indicates low reliability.")
           ),
           div(
-            style = "text-align: center",
+            style = "text-align: center;",
             bsButton(
               inputId = "start",
               label = "Go",
@@ -207,7 +212,7 @@ ui <- list(
         ),
         tabItem(
           ### Challenge ----
-          tabName ="challenge",
+          tabName = "challenge",
           h2("Challenge Yourself!"),
           p("You will need to place at least ten (10) points on the plot below by
             clicking the plot. Place your points keeping the listed challenge in
@@ -291,10 +296,13 @@ ui <- list(
               p(tags$em("Note: "),
                 "The closer the metric (your value is the solid black line) is to
                 zero (denoted by the red dashed line), the less bias your process
-                has. Negative values indicate that your process is systematically ",
-                tags$strong("under-estimating"), " the true value. Positive
-                values indicate that your process is systematically ",
-                tags$strong("over-estimating"), " the true value."
+                has. This means that in the long-run, your points end up centered
+                on the target."
+                ## Keep for future updates
+                # Negative values indicate that your process is systematically
+                # tags$strong("under-estimating") the true value. Positive
+                # values indicate that your process is systematically
+                # tags$strong("over-estimating") the true value.
               )
             )
           ),
@@ -383,7 +391,7 @@ ui <- list(
 # Define Server ----
 server <- function(input, output, session) {
   ## Define session level variables ----
-  biasMetric <-reactiveVal(NA)
+  biasMetric <- reactiveVal(NA)
   reliabilityMetric <- reactiveVal(NA)
 
   contexts <- reactiveVal(0)
@@ -397,89 +405,101 @@ server <- function(input, output, session) {
   )
 
   getQuestionContext <- function() {
-    context <- paste("Create a process which has",
-                     questionBank[contexts()[counter()], "bias"], "bias and",
-                     questionBank[contexts()[counter()], "reliability"], "reliability.")
-
+    context <- paste(
+      "Create a process which has",
+      questionBank[contexts()[counter()], "bias"], "bias and",
+      questionBank[contexts()[counter()], "reliability"], "reliability."
+    )
     return(context)
   }
 
   ## Info button ----
-  observeEvent(input$info,{
-    sendSweetAlert(
-      session = session,
-      title = "Instructions",
-      text = "Click in the target to create points that meet the challenge.",
-      type = "info"
-    )
+  observeEvent(
+    eventExpr = input$info,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Instructions",
+        text = "Click in the target to create points that meet the challenge.",
+        type = "info"
+      )
   })
 
   ## Go button ----
-  observeEvent(input$go,{
-    updateTabItems(
-      session = session,
-      inputId = "tabs",
-      selected = "prerequisites")
+  observeEvent(
+    eventExpr = input$go,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "prerequisites"
+      )
   })
 
   ## Start button ----
-  observeEvent(input$start,{
-    updateTabItems(
-      session = session,
-      inputId = "tabs",
-      selected = "challenge")
+  observeEvent(
+    eventExpr = input$start,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "challenge"
+      )
   })
 
   ## Setup first challenge ----
-  observeEvent(input$tabs, {
-    if(input$tabs == "challenge" && !(activeGame())) {
-      contexts(sample(1:nrow(questionBank), size = nrow(questionBank)))
-      activeGame(TRUE)
-      output$biasPlot <- renderPlot({
-        return(defaultBiasPlot)
+  observeEvent(
+    eventExpr = input$pages,
+    handlerExpr = {
+      if (input$pages == "challenge" && !(activeGame())) {
+        contexts(sample(1:nrow(questionBank), size = nrow(questionBank)))
+        activeGame(TRUE)
+        output$biasPlot <- renderPlot({
+          return(defaultBiasPlot)
+        })
+        output$biasFeedback <- renderUI({
+          paste(defaultFeedback)
+        })
+        output$reliabilityPlot <- renderPlot({
+          return(defaultReliabilityPlot)
+        })
+        output$reliabilityFeedback <- renderUI({
+          return(defaultFeedback)
+        })
+      }
+      output$challenge <- renderUI({
+        getQuestionContext()
       })
-      output$biasFeedback <- renderUI({
-        paste(defaultFeedback)
-      })
-      output$reliabilityPlot <- renderPlot({
-        return(defaultReliabilityPlot)
-      })
-      output$reliabilityFeedback <- renderUI({
-        return(defaultFeedback)
-      })
-    }
-    output$challenge <- renderUI({
-      getQuestionContext()
     })
 
-  })
-
   ## Watch for user clicks to plot points ----
-  observeEvent(input$userClick, {
-    newRow <- data.frame(
-      x = input$userClick$x,
-      y = input$userClick$y
-    )
+  observeEvent(
+    eventExpr = input$userClick,
+    handlerExpr = {
+      newRow <- data.frame(
+        x = input$userClick$x,
+        y = input$userClick$y
+      )
 
-    coords <- jsonlite::toJSON(newRow)
+      coords <- jsonlite::toJSON(newRow)
 
-    stmt <- boastUtils::generateStatement(
-      session,
-      verb = "answered",
-      object = "inputPlot",
-      description = getQuestionContext(),
-      interactionType = "performance",
-      response = coords
-    )
+      stmt <- boastUtils::generateStatement(
+        session,
+        verb = "answered",
+        object = "inputPlot",
+        description = getQuestionContext(),
+        interactionType = "performance",
+        response = coords
+      )
 
-    boastUtils::storeStatement(session, stmt)
+      boastUtils::storeStatement(session, stmt)
 
-    userPoints$DT <- rbind(userPoints$DT, newRow)
-  })
+      userPoints$DT <- rbind(userPoints$DT, newRow)
+    })
 
   ## Display counter for number of points ploted ----
   output$pointCounter <- renderUI({
-    if(nrow(userPoints$DT) >= 10) {
+    if (nrow(userPoints$DT) >= 10) {
       p("You have at least 10 points plotted.")
     } else {
       p("Please plot at least ", 10 - nrow(userPoints$DT), " more points.")
@@ -488,7 +508,7 @@ server <- function(input, output, session) {
 
   ## Create the main target plot ----
   output$inputPlot <- renderPlot({
-    if(nrow(userPoints$DT) == 0) {
+    if (nrow(userPoints$DT) == 0) {
       return(mainPlot)
     } else {
       mainPlot + geom_point(
@@ -501,28 +521,32 @@ server <- function(input, output, session) {
     }
   })
 
-  observeEvent(userPoints$DT, {
-    if(nrow(userPoints$DT) >= 10) {
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = FALSE
-      )
-    }
-  })
+  observeEvent(
+    eventExpr = userPoints$DT,
+    handlerExpr = {
+      if (nrow(userPoints$DT) >= 10) {
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = FALSE
+        )
+      }
+    })
 
   ## Submit Button ----
-  observeEvent(input$submit, {
-    ### Enable Next Challenge button ----
-    updateButton(
-      session = session,
-      inputId = "nextChallenge",
-      disabled = FALSE
-    )
+  observeEvent(
+    eventExpr = input$submit,
+    handlerExpr = {
+      ### Enable Next Challenge button ----
+      updateButton(
+        session = session,
+        inputId = "nextChallenge",
+        disabled = FALSE
+      )
 
-    ### Render Output Plots and Feedback ----
-    ### Bias Plot ----
-    if(nrow(userPoints$DT) >= 10) {
+      ### Render Output Plots and Feedback ----
+      ### Bias Plot ----
+      if (nrow(userPoints$DT) >= 10) {
       biasMetric(sqrt(mean(userPoints$DT$x)^2 + mean(userPoints$DT$y)^2))
       biasData <- data.frame(
         values = seq(from = (-1 * biasMetric()), to = biasMetric(), by = 0.1)
@@ -536,19 +560,19 @@ server <- function(input, output, session) {
         )
       )
       ggplot(data = biasData, mapping = aes(x = values)) +
-        geom_vline(xintercept = 0,
-                   color = boastUtils::psuPalette[2],
-                   size = 2,
-                   lty = 2) +
-        geom_vline(xintercept = biasMetric(),
-                   color = "black",
-                   size = 2,
-                   lty = 1) +
-        scale_x_continuous(expand = expansion(mult = 0, add = 1)) +
+        geom_vline(
+          xintercept = 0,
+          color = boastUtils::psuPalette[2],
+          size = 2,
+          lty = 2) +
+        geom_vline(
+          xintercept = biasMetric(),
+          color = "black",
+          size = 2,
+          lty = 1) +
+        scale_x_continuous(expand = expansion(mult = 0, add = c(0.05, 1))) +
         theme_bw() +
-        theme(
-          text = element_text(size = 16)
-        ) +
+        theme(text = element_text(size = 16)) +
         xlab("Bias metric")
     })
     ### Bias Feedback ----
@@ -557,7 +581,7 @@ server <- function(input, output, session) {
     })
 
     ### Reliability Plot ----
-    if(nrow(userPoints$DT) >= 10) {
+    if (nrow(userPoints$DT) >= 10) {
       reliabData <- data.frame(
         values = as.vector(dist(cbind(userPoints$DT)))
       )
@@ -570,26 +594,34 @@ server <- function(input, output, session) {
           message = "You need at least 10 points before pressing Submit."
         )
       )
-      ggplot(data = reliabData,
-             mapping = aes(x = values)) +
-        geom_density(size = 2,
-                     color = boastUtils::boastPalette[8],
-                     fill = boastUtils::boastPalette[8]) +
-        geom_vline(xintercept = 0,
-                   color = boastUtils::psuPalette[2],
-                   size = 2,
-                   lty = 2) +
-        geom_vline(xintercept = mean(reliabData$values),
-                   color = "black",
-                   size = 2,
-                   lty = 1) +
-        scale_x_continuous(expand = expansion(mult = c(0, 0.05), add = c(0.05, 0)),
-                           limits = c(0, NA)) +
+      ggplot(
+        data = reliabData,
+        mapping = aes(x = values)
+      ) +
+        geom_density(
+          size = 2,
+          color = boastUtils::boastPalette[8],
+          fill = boastUtils::boastPalette[8]
+        ) +
+        geom_vline(
+          xintercept = 0,
+          color = boastUtils::psuPalette[2],
+          size = 2,
+          lty = 2
+        ) +
+        geom_vline(
+          xintercept = mean(reliabData$values),
+          color = "black",
+          size = 2,
+          lty = 1
+        ) +
+        scale_x_continuous(
+          expand = expansion(mult = c(0, 0.05), add = c(0.05, 0)),
+          limits = c(0, NA)
+        ) +
         scale_y_continuous(expand = expansion(mult = c(0, 0.1), add = 0)) +
         theme_bw() +
-        theme(
-          text = element_text(size = 16)
-        ) +
+        theme(text = element_text(size = 16)) +
         xlab("Distance between points") +
         ylab("Density")
     })
@@ -601,58 +633,58 @@ server <- function(input, output, session) {
     })
 
     ### Description of Student's Plot ----
-    if(nrow(userPoints$DT) < 10) {
+    if (nrow(userPoints$DT) < 10) {
       output$description <- renderUI({
         "Please place at least ten points on the target."
       })
     } else {
-      if(mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
+      if (mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
          mean(userPoints$DT$y, na.rm = TRUE) > 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the upper right
         quadrant of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) > 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the upper left
         quadrant of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) < 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the lower left
         quadrant of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) < 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the lower right
         quadrant of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) == 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) == 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) < 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the lower
         half of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) == 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) == 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) > 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the upper
         half of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) < 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) == 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the left
-        quadrant of the target."
+        half of the target."
         })
-      } else if(mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
+      } else if (mean(userPoints$DT$x, na.rm = TRUE) > 0 &&
                 mean(userPoints$DT$y, na.rm = TRUE) == 0) {
         output$description <- renderUI({
           "Your plot indicates that your process graviated towards the right
-        quadrant of the target."
+        half of the target."
         })
       } else {
         output$description <- renderUI({
@@ -676,11 +708,12 @@ server <- function(input, output, session) {
 
     feedback <- ""
 
-    if(biasCheck && reliabilityCheck){
+    if (biasCheck && reliabilityCheck) {
       output$gradingIcon <- boastUtils::renderIcon("correct")
-      feedback <- paste("Congrats! You succeeded in the current challenge. Check out the
-              feedback below to see just how well you did. Then try the next
-              challenge.")
+      feedback <- paste(
+        "Congrats! You succeeded in the current challenge. Check out the
+        feedback below to see just how well you did. Then try the next challenge."
+      )
     } else if (biasCheck && !reliabilityCheck) {
       output$gradingIcon <- boastUtils::renderIcon("partial")
       feedback <- paste("You are correct with your Bias, but not Reliability.
@@ -723,122 +756,121 @@ server <- function(input, output, session) {
     boastUtils::storeStatement(session, stmt)
   })
 
-  ## Grading Icons ----
-  observeEvent(input$submit, {
-
-  })
-
   ## Reattempt Button ----
-  observeEvent(input$reattempt, {
-    userPoints$DT <- data.frame(
-      x = NULL,
-      y = NULL
-    )
-    biasMetric(NA)
-    reliabilityMetric(NA)
-    updateButton(
-      session =  session,
-      inputId = "submit",
-      disabled = TRUE
-    )
-    output$biasPlot <- renderPlot({
-      return(defaultBiasPlot)
-    })
-    output$biasFeedback <- renderUI({
-      return(defaultFeedback)
-    })
-    output$reliabilityPlot <- renderPlot({
-      return(defaultReliabilityPlot)
-    })
-    output$reliabilityFeedback <- renderUI({
-      return(defaultFeedback)
-    })
-    output$description <- renderUI({
-      return(defaultFeedback)
-    })
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$gradeMessage <- renderUI({
-      return(defaultFeedback)
-    })
+  observeEvent(
+    eventExpr = input$reattempt,
+    handlerExpr = {
+      userPoints$DT <- data.frame(
+        x = NULL,
+        y = NULL
+      )
+      biasMetric(NA)
+      reliabilityMetric(NA)
+      updateButton(
+        session =  session,
+        inputId = "submit",
+        disabled = TRUE
+      )
+      output$biasPlot <- renderPlot({
+        return(defaultBiasPlot)
+      })
+      output$biasFeedback <- renderUI({
+        return(defaultFeedback)
+      })
+      output$reliabilityPlot <- renderPlot({
+        return(defaultReliabilityPlot)
+      })
+      output$reliabilityFeedback <- renderUI({
+        return(defaultFeedback)
+      })
+      output$description <- renderUI({
+        return(defaultFeedback)
+      })
+      output$gradingIcon <- boastUtils::renderIcon()
+      output$gradeMessage <- renderUI({
+        return(defaultFeedback)
+      })
 
-    updateButton(
-      session = session,
-      inputId = "nextChallenge",
-      disabled = TRUE
-    )
-  })
+      updateButton(
+        session = session,
+        inputId = "nextChallenge",
+        disabled = TRUE
+      )
+    })
 
   ## Next button ----
-  observeEvent(input$nextChallenge, {
-    updateButton(
-      session = session,
-      inputId = "submit",
-      disabled = FALSE
-    )
-    if(counter() < nrow(questionBank)) {
-      counter(counter() + 1)
-
-      stmt <- boastUtils::generateStatement(
-        session,
-        verb = "progressed",
-        object = "shiny-tab-challenge",
-        description = getQuestionContext(),
-        response = paste("Stage", counter())
+  observeEvent(
+    eventExpr = input$nextChallenge,
+    handlerExpr = {
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = FALSE
       )
+      if (counter() < nrow(questionBank)) {
+        counter(counter() + 1)
 
-      boastUtils::storeStatement(session, stmt)
-    } else {
-      msg <- "You have completed all of the challenges. Please refresh the app
+        stmt <- boastUtils::generateStatement(
+          session,
+          verb = "progressed",
+          object = "shiny-tab-challenge",
+          description = getQuestionContext(),
+          response = paste("Stage", counter())
+        )
+
+        boastUtils::storeStatement(session, stmt)
+      } else {
+        msg <- "You have completed all of the challenges. Please refresh the app
         to start again."
 
-      stmt <- boastUtils::generateStatement(
-        session,
-        verb = "completed",
-        object = "shiny-tab-challenge",
-        description = gsub("\\s+", " ", msg),
-        completion = TRUE
-      )
+        stmt <- boastUtils::generateStatement(
+          session,
+          verb = "completed",
+          object = "shiny-tab-challenge",
+          description = gsub("\\s+", " ", msg),
+          completion = TRUE
+        )
 
-      boastUtils::storeStatement(session, stmt)
+        boastUtils::storeStatement(session, stmt)
 
-      sendSweetAlert(
-        session = session,
-        title = "Out of Challenges",
-        text = msg,
-        type = "error"
+        sendSweetAlert(
+          session = session,
+          title = "Out of Challenges",
+          text = msg,
+          type = "error"
+        )
+      }
+      userPoints$DT <- data.frame(
+        x = NULL,
+        y = NULL
       )
-    }
-    userPoints$DT <- data.frame(
-      x = NULL,
-      y = NULL
-    )
-    biasMetric(NA)
-    reliabilityMetric(NA)
-    updateButton(
-      session =  session,
-      inputId = "submit",
-      disabled = TRUE
-    )
-    output$biasPlot <- renderPlot({
-      return(defaultBiasPlot)
+      biasMetric(NA)
+      reliabilityMetric(NA)
+      updateButton(
+        session =  session,
+        inputId = "submit",
+        disabled = TRUE
+      )
+      output$biasPlot <- renderPlot({
+        return(defaultBiasPlot)
+      })
+      output$biasFeedback <- renderUI({
+        return(defaultFeedback)
+      })
+      output$reliabilityPlot <- renderPlot({
+        return(defaultReliabilityPlot)
+      })
+      output$reliabilityFeedback <- renderUI({
+        return(defaultFeedback)
+      })
+      output$description <- renderUI({
+        return(defaultFeedback)
+      })
+      output$gradingIcon <- boastUtils::renderIcon()
+      output$gradeMessage <- renderUI({
+        return(defaultFeedback)
+      })
     })
-    output$biasFeedback <- renderUI({
-      return(defaultFeedback)
-    })
-    output$reliabilityPlot <- renderPlot({
-      return(defaultReliabilityPlot)
-    })
-    output$reliabilityFeedback <- renderUI({
-      return(defaultFeedback)
-    })
-    output$description <- renderUI({
-      return(defaultFeedback)
-    })
-    output$gradingIcon <- boastUtils::renderIcon()
-    output$gradeMessage <- renderUI({
-      return(defaultFeedback)
-    })
-  })
 }
 
 # App Call----
